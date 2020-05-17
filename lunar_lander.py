@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     agent = LearningAgent(indim, odim)
     
-    episodes = 600
+    episodes = 1650
 
     rewardS = deque(maxlen=50)
     resultFrom550To600Episodes = []
@@ -97,8 +97,8 @@ if __name__ == "__main__":
         currentState = np.reshape(currentState, (1, indim))
 
         for step in range(1000):
-            if e > 550:
-                env.render()
+#            if e > 550:
+#                env.render()
                 
             act = agent.selectAction(currentState)
             nextState, reward, done, info = env.step(act)
@@ -106,12 +106,12 @@ if __name__ == "__main__":
             nextState = np.reshape(nextState, (1, indim))
             agent.appendToMemory(currentState, act, reward, nextState, done)
             currentState = nextState
-            if len(agent.memory) > agent.minibatchSize:
+            if len(agent.memory) > agent.minibatchSize and e < 1551:
                 agent.replay()
             
             if done:
                 break
-        if e > 550:
+        if e > 1550:
             resultFrom550To600Episodes.append(currentReward)
 #            if currentReward > 200:
 #                resultUpper200 += 1
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 #                resultLess0 += 1
                 
         if agent.epsilon > agent.minEpsilon:
-            agent.epsilon *= agent.decayEpsilon
+            agent.epsilon = max(agent.minEpsilon, agent.epsilon*agent.decayEpsilon)
             
         rewardS.append(currentReward)
         print ('Number of episode: ', e, ' SCORE: ', '%.2f' % currentReward, ' MEAN: ', '%.2f' % np.average(rewardS), ' STEP COUNT: ', step, ' epsilon: ', '%.2f' % agent.epsilon)
